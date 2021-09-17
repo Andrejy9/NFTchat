@@ -2,13 +2,74 @@
 import './App.css'
 import { useState } from 'react'
 import { create } from 'ipfs-http-client'
+import Web3 from 'web3'
+import React, { Component } from 'react'
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
 
-function App() {
-  const [fileUrl, updateFileUrl] = useState(``)
 
-  async function onSend(e) {
+class App extends Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      account: '',
+      show: false,
+      network: ''
+    }
+  }
+
+
+  //lifecycle function componenet
+  async componentWillMount() {
+    await this.loadWeb3()
+    if (this.state.show === false) {
+      await this.loadBlockchainData()
+    }
+  }
+
+  async loadBlockchainData() {
+    const web3 = window.web3
+    const accounts = await web3.eth.getAccounts()
+    this.setState({ account: accounts[0] })
+    console.log(accounts[0])
+    web3.eth.net.getId().then(netId => {
+      switch (netId) {
+        case 1:
+          console.log('This is mainnet')
+          this.setState({ network: 'Mainnet' })
+          break
+        case 2:
+          console.log('This is the deprecated Morden test network.')
+          break
+        case 137:
+          console.log('This is the Polygon network.')
+          this.setState({ network: 'Polygon' })
+          break
+        default:
+          console.log('This is an unknown network.')
+          console.log(netId)
+      }
+    })
+
+  }
+
+  async loadWeb3() {
+    console.log('load web sta funzionando')
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum)
+      await window.ethereum.enable()
+    }
+    else if (window.web3) {
+      window.web3 = new Web3(window.web3.currentProvider)
+    }
+    else {
+      window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
+    }
+  }
+
+  async onSend(e) {
+    var [fileUrl, updateFileUrl] = ``
     let canvas = document.createElement("canvas");
     canvas.id = "canvasId";
     canvas.width = 600;
@@ -45,47 +106,68 @@ function App() {
   }
 
 
-  return (
-    <div className="App">
-      <h1>IPFS Example</h1>
-      <input
-        id="the_text"
-        type="text"
-        style={{
-          /* backgroundColor: "#4CAF50", Green */
-          padding: "13px 50px",
+  async App() {
+
+    this.setState({ loading: false })
+  }
+
+
+  render() {
+    let content
+    if (this.state.loading) {
+      content = <img src={'https://media.giphy.com/media/l3nWhI38IWDofyDrW/giphy.gif'}
+        width="80"
+        height="80" />
+    }
+    let fileUrl = ''
+
+    return (
+      <div className="App">
+        <h>{this.state.account}<br></br></h>
+        <h>{this.state.network}</h>
+        <h1>IPFS Example</h1>
+        <input
+          id="the_text"
+          type="text"
+          style={{
+            /* backgroundColor: "#4CAF50", Green */
+            padding: "13px 50px",
+            textAlign: 'center',
+            textDecoration: 'none',
+            fontSize: "16px",
+
+            width: '300px'
+          }}
+
+        />
+        <button width="300" height="300" style={{
+          backgroundColor: "#4CAF50", /* Green */
+          border: 'none',
+          color: 'white',
+          padding: "15px 32px",
           textAlign: 'center',
           textDecoration: 'none',
+          display: "inline-block",
           fontSize: "16px",
-
-          width: '300px'
+          margin: "4px 2px",
+          cursor: "pointer",
+          /* width: 35px; */
         }}
+          onClick={this.onSend}
+        >Send</button>
 
-      />
-      <button width="300" height="300" style={{
-        backgroundColor: "#4CAF50", /* Green */
-        border: 'none',
-        color: 'white',
-        padding: "15px 32px",
-        textAlign: 'center',
-        textDecoration: 'none',
-        display: "inline-block",
-        fontSize: "16px",
-        margin: "4px 2px",
-        cursor: "pointer",
-        /* width: 35px; */
-      }}
-        onClick={onSend}
-      >Send</button>
+        <div id="show_img_here"></div>
+        {
+          fileUrl && (
+            <img src={fileUrl} width="600px" height="200px" />
+          )
+        }
+      </div>
+    )
 
-      <div id="show_img_here"></div>
-      {
-        fileUrl && (
-          <img src={fileUrl} width="600px" height="200px" />
-        )
-      }
-    </div>
-  );
+
+  }
+
 }
 
 export default App
