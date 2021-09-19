@@ -1,8 +1,10 @@
 /* src/App.js */
 import './App.css'
 import { create } from 'ipfs-http-client'
+import html2canvas from 'html2canvas'
 import Web3 from 'web3'
 import React, { Component } from 'react'
+import { NFTchatABI } from "./NFTChatABI";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
 class App extends Component {
@@ -65,76 +67,59 @@ class App extends Component {
   }
 
   async onSend(e) {
-    let canvas = document.createElement("canvas");
-    canvas.id = "canvasId";
-    canvas.width = 600;
-    canvas.height = 200;
-    let ctx = canvas.getContext('2d');
-    ctx.font = "20px Courier New";
-    ctx.fontFamily = "'Courier New', monospace;"
-    let text = document.getElementById("the_text").value;
-    ctx.fillText(text, 30, 80);
-
-    let img = document.createElement("img");
-    img.src = canvas.toDataURL("image/png");
-    document.getElementById("show_img_here").append(img);
-
-    const imgFile= getImageFile(img.src);
-    const imgUrl = await uploadFileToIPFS(imgFile);
-
-    //Upload Metadata
-    const metadata = getMetaData(imgUrl);
-    const metaJson = JSON.stringify(metadata);
-    const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' });
-    console.log("FILE METADATA", metadataFile);
-    uploadFileToIPFS(metadataFile);
+    console.log("TAKESHOT...")
+    let div = document.getElementById('the_text');
+    html2canvas(div).then(
+      function (canvas) {
+        canvas.setAttribute("class", "myCanvas");
+        document
+          .getElementById('show_img_here')
+          .appendChild(canvas);
+        uploadDataToIPFS(canvas.toDataURL("image/png"))
+      })
   }
 
   async App() {
     this.setState({ loading: false })
   }
 
-
   render() {
     return (
       <div className="App">
         <h>{this.state.account}<br></br></h>
         <h>{this.state.network}</h>
-        <h1>IPFS Example</h1>
+        <h1>NFTchat</h1>
 
-        <textarea
-          id="the_text"
-          value={this.state.textAreaValue}
-          onChange={this.handleChange}
-          rows={5}
-          cols={5}
-        />
-        <button width="300" height="300" style={{
-          backgroundColor: "#4CAF50", /* Green */
-          border: 'none',
-          color: 'white',
-          padding: "15px 32px",
-          textAlign: 'center',
-          textDecoration: 'none',
-          display: "inline-block",
-          fontSize: "16px",
-          margin: "4px 2px",
-          cursor: "pointer",
-          /* width: 35px; */
-        }}
-          onClick={this.onSend}
-        >Send</button>
+        <textarea className="TextArea" id="the_text" />
+        <button className="MyButton" onClick={this.onSend}>Send</button>
+        <div className="imgPreview" id="show_img_here"></div>
 
-        <div id="show_img_here"></div>
       </div>
     )
-
-
   }
-
 }
 
 export default App
+
+
+async function uploadDataToIPFS(imageURL) {
+  const imgFile = getImageFile(imageURL)
+  const imgUrl = await uploadFileToIPFS(imgFile)
+
+  //Upload Metadata
+  const metadata = getMetaData(imgUrl)
+  const metaJson = JSON.stringify(metadata)
+  const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
+  console.log("FILE METADATA", metadataFile)
+  uploadFileToIPFS(metadataFile)
+
+  const NFTContract = new window.web3.eth.Contract(NFTchatABI)
+  console.log("NFTContract: ", NFTContract)
+  console.log("NFTchatABI: ", NFTchatABI)
+
+
+  const contractAddress = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
+}
 
 function getImageFile(fileContent) {
   const arr = fileContent.split(',')
@@ -163,10 +148,14 @@ async function uploadFileToIPFS(file) {
   return fileUrl
 }
 
-function getMetaData(imgUrl) {
+
+
+function getMetaData(imgUrl, senderAdress) {
+  console.log(` ge metadata image: ${imgUrl}`)
+
   return {
-    "name": "Powered by NFT Chat",
-    "description": "We gotta decide what to write here, the msg it self?, adds?, Our Marketing msg?",
+    "name": "nftchat.xyz",
+    "description": `You received this message from: ${senderAdress}`,
     "image": `${imgUrl}`,
     "attributes": [{
       "trait_type": "Base",
