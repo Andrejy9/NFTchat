@@ -67,7 +67,6 @@ class App extends Component {
   }
 
   async onSend(e) {
-    console.log("TAKESHOT...")
     let div = document.getElementById('the_text');
     html2canvas(div).then(
       function (canvas) {
@@ -90,7 +89,7 @@ class App extends Component {
         <h>{this.state.network}</h>
         <h1>NFTchat</h1>
 
-        <textarea className="TextArea" id="the_text" />
+        <textarea className="TextArea" id="the_text" cols="10" rows="10" placeHolder="Comment text..." />
         <button className="MyButton" onClick={this.onSend}>Send</button>
         <div className="imgPreview" id="show_img_here"></div>
 
@@ -103,6 +102,7 @@ export default App
 
 
 async function uploadDataToIPFS(imageURL) {
+  console.log("imageURL", imageURL);
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
 
@@ -110,12 +110,11 @@ async function uploadDataToIPFS(imageURL) {
   const metadata = getMetaData(imgUrl)
   const metaJson = JSON.stringify(metadata)
   const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
-  console.log("FILE METADATA", metadataFile)
   uploadFileToIPFS(metadataFile)
 
   const NFTContract = new window.web3.eth.Contract(NFTchatABI)
-  console.log("NFTContract: ", NFTContract)
-  console.log("NFTchatABI: ", NFTchatABI)
+  //console.log("NFTContract: ", NFTContract)
+  //console.log("NFTchatABI: ", NFTchatABI)
 
 
   const contractAddress = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
@@ -151,8 +150,6 @@ async function uploadFileToIPFS(file) {
 
 
 function getMetaData(imgUrl, senderAdress) {
-  console.log(` ge metadata image: ${imgUrl}`)
-
   return {
     "name": "nftchat.xyz",
     "description": `You received this message from: ${senderAdress}`,
