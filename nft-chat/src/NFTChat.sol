@@ -11,7 +11,7 @@ contract NFTChat is NFTokenMetadata, Ownable {
     nftSymbol = "CHAT";
   }
  
-  function mint(address _to, uint256 _tokenId, string calldata _uri) external onlyOwner {
+  function mint(address _to, uint256 _tokenId, string calldata _uri) public {
     super._mint(_to, _tokenId);
     super._setTokenUri(_tokenId, _uri);
   }

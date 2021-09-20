@@ -4,7 +4,7 @@ import { create } from 'ipfs-http-client'
 import html2canvas from 'html2canvas'
 import Web3 from 'web3'
 import React, { Component } from 'react'
-import { NFTchatABI } from "./NFTChatABI";
+import { NFTchatABI } from "./NFTChatABI1";
 import { getMetaData } from "./NFTMetadata";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
@@ -20,7 +20,7 @@ class App extends Component {
   }
 
   //lifecycle function componenet
-  async componentWillMount() {
+  async componentDidMount() {
     await this.loadWeb3()
     if (this.state.show === false) {
       await this.loadBlockchainData()
@@ -28,7 +28,8 @@ class App extends Component {
   }
 
   async loadBlockchainData() {
-    const web3 = window.web3
+    await window.web3.currentProvider.enable();
+    const web3 = new Web3(window.web3.currentProvider);
     const accounts = await web3.eth.getAccounts()
     this.setState({ account: accounts[0] })
     console.log(accounts[0])
@@ -44,6 +45,10 @@ class App extends Component {
         case 137:
           console.log('This is the Polygon network.')
           this.setState({ network: 'Polygon' })
+          break
+        case 80001:
+          console.log('This is the Mumbai testnet.')
+          this.setState({ network: 'Mumbai' })
           break
         default:
           console.log('This is an unknown network.')
@@ -126,12 +131,58 @@ async function uploadDataToIPFS(imageURL) {
   const metadata = getMetaData(imgUrl)
   const metaJson = JSON.stringify(metadata)
   const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
-  uploadFileToIPFS(metadataFile)
+  const fileUrl = await uploadFileToIPFS(metadataFile)
 
-  const NFTContract = new window.web3.eth.Contract(NFTchatABI)
+  //const contractAddress = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
+
+  //contratto creato con function public
+  const contractAddress = '0x0B46E5135b37ADD119c4dA02a74Fce00260092D8'
+
+
+  await window.web3.currentProvider.enable();
+  var web3 = new Web3(window.web3.currentProvider);
+  const accounts = await web3.eth.getAccounts()
+  var account=accounts[0]
+
+  var Contract = require('web3-eth-contract');
+  Contract.setProvider(window.web3.providers);
+  const NFTContract = new Contract(NFTchatABI, contractAddress)
+
   //console.log("NFTContract: ", NFTContract)
   //console.log("NFTchatABI: ", NFTchatABI)
-  const contractAddress = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
+
+
+  async function mintNFT(tokenURI, account, NFTContract) {
+    const nonce = await window.web3.eth.getTransactionCount(account, 'latest'); //get latest nonce
+    console.log(nonce)
+  
+    //the transaction
+    const tx = {
+      'from': account.toString(),
+      'to': contractAddress,
+      'nonce': nonce.toString(),
+      //da calcolare in qualche modo il gas
+      'gas': '500000',
+      //questo valore l'ho messo a caso ma così funziona
+      'maxPriorityFeePerGas': '1999999987',
+      //bisogna cambiare il nr dell'NFT perchè se è sempre lo stesso non passa la tx
+      'data': NFTContract.methods.mint(account, 777777, tokenURI).encodeABI()
+    };
+
+    console.log(tx)
+
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [tx],
+    });
+
+    console.log(txHash)
+
+  }
+
+  console.log(fileUrl)
+
+  await mintNFT(fileUrl,account, NFTContract)
 }
 
 function getImageFile(fileContent) {
