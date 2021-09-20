@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas'
 import Web3 from 'web3'
 import React, { Component } from 'react'
 import { NFTchatABI } from "./NFTChatABI";
+import { getMetaData } from "./NFTMetadata";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
 class App extends Component {
@@ -68,7 +69,7 @@ class App extends Component {
 
   async onPreview(e) {
     let theText = document.getElementById('the_text');
-    let htmlText = theText.value.replace(/\n\r?/g, '<br></br>');
+    let htmlText = theText.value.replace(/\n\r?/g, '<br>');
     let msgPreview = document.getElementById('msgPreview');
     msgPreview.innerHTML = htmlText;
   }
@@ -78,7 +79,6 @@ class App extends Component {
     html2canvas(msgPreview).then(
       function (canvas) {
         canvas.setAttribute("class", "myCanvas");
-
         uploadDataToIPFS(canvas.toDataURL("image/png"))
       })
   }
@@ -94,14 +94,14 @@ class App extends Component {
         <h>{this.state.network}</h>
         <pre>
           <h1 className="Title">
-███    ██ ███████ ████████        ██                  ██ <br></br>    
-████   ██ ██         ██           ██                ██████ <br></br>    
-██ ██  ██ █████      ██     █████ ███████ ██ ██ ██    ██    <br></br>    
-██  ██ ██ ██         ██    ██     ██   ██ ██    ██    ██    <br></br>    
-██   ████ ██         ██     █████ ██   ██ ██ ██ ███  ██ ██ <br></br>    
+            ███    ██ ███████ ████████       ██             ██ <br></br>
+            ████   ██ ██         ██          ██           ██████ <br></br>
+            ██ ██  ██ █████      ██    █████ ██████ █████   ██    <br></br>
+            ██  ██ ██ ██         ██   ██     ██  ██ ██  ██  ██    <br></br>
+            ██   ████ ██         ██    █████ ██  ██ ███ ███ ████ <br></br>
           </h1>
         </pre>
-        <textarea className="TextArea" id="the_text" cols="10" rows="10" placeHolder="Insert your message here..." />
+        <textarea className="TextArea" id="the_text" placeHolder="Write your message here..." />
         <button className="MyButton" onClick={this.onPreview}>Preview</button>
         <div id="msgPreview"></div>
         <button className="MyButton" onClick={this.onSend}>Send</button>
@@ -126,8 +126,6 @@ async function uploadDataToIPFS(imageURL) {
   const NFTContract = new window.web3.eth.Contract(NFTchatABI)
   //console.log("NFTContract: ", NFTContract)
   //console.log("NFTchatABI: ", NFTchatABI)
-
-
   const contractAddress = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
 }
 
@@ -156,58 +154,4 @@ async function uploadFileToIPFS(file) {
     console.log('Error uploading file: ', error)
   }
   return fileUrl
-}
-
-
-
-function getMetaData(imgUrl, senderAdress) {
-  return {
-    "name": "nftchat.xyz",
-    "description": `You received this message from: ${senderAdress}`,
-    "image": `${imgUrl}`,
-    "attributes": [{
-      "trait_type": "Base",
-      "value": "Starfish"
-    },
-    {
-      "trait_type": "Eyes",
-      "value": "Big"
-    },
-    {
-      "trait_type": "Level",
-      "value": 5
-    },
-    {
-      "trait_type": "Stamina",
-      "value": 1.4
-    },
-    {
-      "trait_type": "Personality",
-      "value": "Sad"
-    },
-    {
-      "display_type": "boost_number",
-      "trait_type": "Aqua Power",
-      "value": 40
-    },
-    {
-      "display_type": "boost_percentage",
-      "trait_type": "Stamina Increase",
-      "value": 10
-    },
-    {
-      "display_type": "number",
-      "trait_type": "Generation",
-      "value": 2
-    },
-    {
-      "display_type": "date",
-      "trait_type": "birthday",
-      "value": 8566360800 //Thing about this
-    },
-    {
-      "value": "Simple property"
-    }
-    ]
-  }
 }
