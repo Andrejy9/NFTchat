@@ -66,14 +66,19 @@ class App extends Component {
     }
   }
 
+  async onPreview(e) {
+    let theText = document.getElementById('the_text');
+    let htmlText = theText.value.replace(/\n\r?/g, '<br></br>');
+    let msgPreview = document.getElementById('msgPreview');
+    msgPreview.innerHTML = htmlText;
+  }
+
   async onSend(e) {
-    let div = document.getElementById('the_text');
-    html2canvas(div).then(
+    const msgPreview = document.getElementById('msgPreview');
+    html2canvas(msgPreview).then(
       function (canvas) {
         canvas.setAttribute("class", "myCanvas");
-        document
-          .getElementById('show_img_here')
-          .appendChild(canvas);
+
         uploadDataToIPFS(canvas.toDataURL("image/png"))
       })
   }
@@ -87,12 +92,19 @@ class App extends Component {
       <div className="App">
         <h>{this.state.account}<br></br></h>
         <h>{this.state.network}</h>
-        <h1>NFTchat</h1>
-
-        <textarea className="TextArea" id="the_text" cols="10" rows="10" placeHolder="Comment text..." />
+        <pre>
+          <h1 className="Title">
+███    ██ ███████ ████████        ██                  ██ <br></br>    
+████   ██ ██         ██           ██                ██████ <br></br>    
+██ ██  ██ █████      ██     █████ ███████ ██ ██ ██    ██    <br></br>    
+██  ██ ██ ██         ██    ██     ██   ██ ██    ██    ██    <br></br>    
+██   ████ ██         ██     █████ ██   ██ ██ ██ ███  ██ ██ <br></br>    
+          </h1>
+        </pre>
+        <textarea className="TextArea" id="the_text" cols="10" rows="10" placeHolder="Insert your message here..." />
+        <button className="MyButton" onClick={this.onPreview}>Preview</button>
+        <div id="msgPreview"></div>
         <button className="MyButton" onClick={this.onSend}>Send</button>
-        <div className="imgPreview" id="show_img_here"></div>
-
       </div>
     )
   }
@@ -102,7 +114,6 @@ export default App
 
 
 async function uploadDataToIPFS(imageURL) {
-  console.log("imageURL", imageURL);
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
 

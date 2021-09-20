@@ -6,6 +6,13 @@
         height: 100%;
     }
     
+    .Title {
+        margin: 4%;
+        text-align: left;
+        background-color: #00fd00;
+        font-family: monospace;
+    }
+    
     .TextArea {
         background: black;
         color: #00fd00;
@@ -16,21 +23,19 @@
         font-family: monospace;
     }
     
-    .Container {
-        background: gray;
-        width: 90%;
-        height: 50%;
-        padding: 1%;
-        margin: auto;
-        display: flex;
-    }
-    
-    .imgPreview {
-        order: 1;
-        width: 100%;
+    #msgPreview {
+        background: black;
+        color: #00fd00;
+        width: 88%;
+        height: 30%;
+        font-size: 20px;
+        font-family: monospace;
+        margin: 4%;
+        padding: 2%;
     }
     
     .myCanvas {
+        display: contents;
         width: 100%;
         height: 100%;
     }
@@ -38,21 +43,12 @@
     .MyButton {
         width: 92%;
         height: 10%;
-        /* order: 2; */
         background-color: rgb(0 0 0);
-        /* border: none; */
         color: #00fd00;
-        /* padding: 0% !important; */
-        /* text-align: center; */
-        /* text-decoration: none; */
-        /* display: inline-block; */
         font-size: 26px;
         margin: 1%;
         padding: 0%;
-        /* margin-left: 49%; */
         cursor: pointer;
-        /* width: 45%; */
-        /* flex: 50%;*/
     }
     
     .App-logo {
