@@ -54,7 +54,7 @@ class App extends Component {
   }
 
   async loadWeb3() {
-    console.log('load web sta funzionando')
+    console.log('loading web3...')
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum)
       await window.ethereum.enable()
@@ -67,14 +67,20 @@ class App extends Component {
     }
   }
 
-  async onPreview(e) {
-    let theText = document.getElementById('the_text');
-    let htmlText = theText.value.replace(/\n\r?/g, '<br>');
+  async onTxtChanged(e) {
+    let theText = e.target.value;
+    const htmlText = theText
+    .replace(/\t/g, '    ')
+    .replace(/  /g, '&nbsp; ')
+    .replace(/  /g, ' &nbsp;')
+    .replace(/\n\r?/g, '<br>');
+
     let msgPreview = document.getElementById('msgPreview');
     msgPreview.innerHTML = htmlText;
   }
 
   async onSend(e) {
+    console.log("sending msg")
     const msgPreview = document.getElementById('msgPreview');
     html2canvas(msgPreview).then(
       function (canvas) {
@@ -92,18 +98,17 @@ class App extends Component {
       <div className="App">
         <h>{this.state.account}<br></br></h>
         <h>{this.state.network}</h>
-        <pre>
-          <h1 className="Title">
-            ███    ██ ███████ ████████       ██             ██ <br></br>
-            ████   ██ ██         ██          ██           ██████ <br></br>
-            ██ ██  ██ █████      ██    █████ ██████ █████   ██    <br></br>
-            ██  ██ ██ ██         ██   ██     ██  ██ ██  ██  ██    <br></br>
-            ██   ████ ██         ██    █████ ██  ██ ███ ███ ████ <br></br>
+        { <pre className="Title">
+          <h1 >
+            ███    ██ ███████ ████████      ██             ██<br></br>
+            ████   ██ ██         ██         ██           ██████<br></br>
+            ██ ██  ██ █████      ██   █████ ██████ █████   ██  <br></br>
+            ██  ██ ██ ██         ██  ██     ██  ██ ██  ██  ██  <br></br>
+            ██   ████ ██         ██   █████ ██  ██ ███ ███ ████<br></br>
           </h1>
-        </pre>
-        <textarea className="TextArea" id="the_text" placeHolder="Write your message here..." />
-        <button className="MyButton" onClick={this.onPreview}>Preview</button>
-        <div id="msgPreview"></div>
+        </pre> }
+        <textarea className="TextArea" id="the_text" maxlength="666" spellcheck="false" placeHolder="Write your message here..." onChange={this.onTxtChanged}/>
+        <div id="msgPreview">Here you will see a preview of your NFT message</div>
         <button className="MyButton" onClick={this.onSend}>Send</button>
       </div>
     )
