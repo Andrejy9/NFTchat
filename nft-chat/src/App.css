@@ -1,28 +1,44 @@
 .App {
     text-align: center;
-    background-color: #00fd00;
+    background-color: rgb(54 54 59);
     position: absolute;
     height: 100%;
     width: 96%;
-    padding-top: 5%;
+    padding-top: 2%;
     padding-right: 2%;
     padding-bottom: 5%;
     padding-left: 2%;
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .Title {
-    padding: 4%;
-    margin-left: auto;
-    margin-right: auto;
+    padding: 2%;
+    margin: auto;
     text-align: left;
-    background-color: black;
     color: #00fd00;
     font-family: monospace;
+    font-size: 1vw;
+}
+
+.ToAddress {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2%;
+    background: black;
+    color: #00fd00;
+    padding: 1%;
+    resize: none;
+    width: 80%;
+    height: 5%;
+    font-size: 1.6vh;
+    font-family: monospace;
+    max-width: 900px;
 }
 
 .TextArea {
+    margin-top: 2%;
     margin-left: auto;
     margin-right: auto;
     background: black;
@@ -31,37 +47,54 @@
     resize: none;
     width: 80%;
     height: 30%;
-    font-size: 20px;
+    font-size: 1.6vh;
     font-family: monospace;
+    max-width: 900px;
 }
 
 #msgPreview {
     margin-left: auto;
     margin-right: auto;
-    margin-top: 30px;
+    margin-top: 2%;
     text-align: left;
     background: black;
     color: #00fd00;
     width: 80%;
-    font-size: 20px;
+    font-size: 1.6vh;
     font-family: monospace;
     padding: 1%;
+    max-width: 900px;
 }
 
 .myCanvas {
     display: contents;
 }
 
+.container {
+    margin: auto;
+    width: 82%;
+    height: 6vh;
+    max-width: 933px;
+}
+
+.clientInfo {
+    width: 65%;
+    font-family: monospace;
+    text-align: left;
+    font-size: 0.9vh;
+    color: #00fd00;
+    display: inline-block;
+}
+
 .MyButton {
-    margin-left: 41%;
-    margin-right: auto;
-    margin-top: 30px;
-    width: 50%;
-    height: 5%;
+    width: 35%;
+    height: 100%;
     background-color: rgb(0 0 0);
     color: #00fd00;
-    font-size: 26px;
+    font-size: 2vh;
     cursor: pointer;
+    font-family: monospace;
+    display: inline-block;
 }
 
 .App-logo {

@@ -3,13 +3,17 @@ import './App.css'
 import { create } from 'ipfs-http-client'
 import html2canvas from 'html2canvas'
 import Web3 from 'web3'
+import Contract from 'web3-eth-contract'
 import React, { Component } from 'react'
-import { NFTchatABI } from "./NFTChatABI1";
+import { NFTchatABI } from "./NFTChatABI";
 import { getMetaData } from "./NFTMetadata";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
+const CONTRACT_ADDRESS = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
+const NFTContract = new Contract(NFTchatABI, CONTRACT_ADDRESS)
+let web3;
+let account;
 class App extends Component {
-
   constructor(props) {
     super(props)
     this.state = {
@@ -29,10 +33,11 @@ class App extends Component {
 
   async loadBlockchainData() {
     await window.web3.currentProvider.enable();
-    const web3 = new Web3(window.web3.currentProvider);
+    web3 = new Web3(window.web3.currentProvider);
     const accounts = await web3.eth.getAccounts()
-    this.setState({ account: accounts[0] })
-    console.log(accounts[0])
+    account = accounts[0]
+    this.setState({ account: account })
+    console.log("Current Account:", account)
     web3.eth.net.getId().then(netId => {
       switch (netId) {
         case 1:
@@ -55,7 +60,6 @@ class App extends Component {
           console.log(netId)
       }
     })
-
   }
 
   async loadWeb3() {
@@ -75,22 +79,24 @@ class App extends Component {
   async onTxtChanged(e) {
     let theText = e.target.value;
     const htmlText = theText
-    .replace(/\t/g, '    ')
-    .replace(/  /g, '&nbsp; ')
-    .replace(/  /g, ' &nbsp;')
-    .replace(/\n\r?/g, '<br>');
+      .replace(/\t/g, '    ')
+      .replace(/ {2}/g, '&nbsp; ')
+      .replace(/ {2}/g, ' &nbsp;')
+      .replace(/\n\r?/g, '<br>');
 
     let msgPreview = document.getElementById('msgPreview');
     msgPreview.innerHTML = htmlText;
   }
 
   async onSend(e) {
-    console.log("sending msg")
+    console.log("sending msg...")
     const msgPreview = document.getElementById('msgPreview');
     html2canvas(msgPreview).then(
       function (canvas) {
         canvas.setAttribute("class", "myCanvas");
-        uploadDataToIPFS(canvas.toDataURL("image/png"))
+        const fileUrl = uploadDataToIPFS(canvas.toDataURL("image/png"))
+        const toAddress = document.getElementById('toAddress').value;
+        mintNFT(fileUrl, toAddress)
       })
   }
 
@@ -101,9 +107,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <h>{this.state.account}<br></br></h>
-        <h>{this.state.network}</h>
-        { <pre className="Title">
+        {<pre className="Title">
           <h1 >
             ███    ██ ███████ ████████      ██             ██<br></br>
             ████   ██ ██         ██         ██           ██████<br></br>
@@ -111,11 +115,19 @@ class App extends Component {
             ██  ██ ██ ██         ██  ██     ██  ██ ██  ██  ██  <br></br>
             ██   ████ ██         ██   █████ ██  ██ ███ ███ ████<br></br>
           </h1>
-        </pre> }
-        <textarea className="TextArea" id="the_text" maxlength="666" spellcheck="false" placeHolder="Write your message here..." onChange={this.onTxtChanged}/>
-        <div id="msgPreview">Here you will see a preview of your NFT message</div>
-        <button className="MyButton" onClick={this.onSend}>Send</button>
-      </div>
+        </pre>}
+        <input id="toAddress" className="ToAddress" maxLength="42" placeholder="Insert the receiver address here..."></input>
+        <textarea className="TextArea" id="the_text" maxLength="666" spellCheck="false" placeholder="Write your message here..." onChange={this.onTxtChanged} />
+        <div id="msgPreview">  -- NFT message preview --  </div>
+          <div className="container">
+            <div className="clientInfo">
+              Sender Address: {this.state.account}
+              <br></br>
+              Network: {this.state.network}
+            </div>
+            <button className="MyButton" onClick={this.onSend}>Send</button>
+          </div>
+        </div>
     )
   }
 }
@@ -126,63 +138,13 @@ export default App
 async function uploadDataToIPFS(imageURL) {
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
-
   //Upload Metadata
   const metadata = getMetaData(imgUrl)
   const metaJson = JSON.stringify(metadata)
   const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
   const fileUrl = await uploadFileToIPFS(metadataFile)
-
-  //const contractAddress = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
-
-  //contratto creato con function public
-  const contractAddress = '0x0B46E5135b37ADD119c4dA02a74Fce00260092D8'
-
-
-  await window.web3.currentProvider.enable();
-  var web3 = new Web3(window.web3.currentProvider);
-  const accounts = await web3.eth.getAccounts()
-  var account=accounts[0]
-
-  var Contract = require('web3-eth-contract');
-  Contract.setProvider(window.web3.providers);
-  const NFTContract = new Contract(NFTchatABI, contractAddress)
-
-  //console.log("NFTContract: ", NFTContract)
-  //console.log("NFTchatABI: ", NFTchatABI)
-
-
-  async function mintNFT(tokenURI, account, NFTContract) {
-    const nonce = await window.web3.eth.getTransactionCount(account, 'latest'); //get latest nonce
-    console.log(nonce)
-  
-    //the transaction
-    const tx = {
-      'from': account.toString(),
-      'to': contractAddress,
-      'nonce': nonce.toString(),
-      //da calcolare in qualche modo il gas
-      'gas': '500000',
-      //questo valore l'ho messo a caso ma così funziona
-      'maxPriorityFeePerGas': '1999999987',
-      //bisogna cambiare il nr dell'NFT perchè se è sempre lo stesso non passa la tx
-      'data': NFTContract.methods.mint(account, 777777, tokenURI).encodeABI()
-    };
-
-    console.log(tx)
-
-    const txHash = await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [tx],
-    });
-
-    console.log(txHash)
-
-  }
-
-  console.log(fileUrl)
-
-  await mintNFT(fileUrl,account, NFTContract)
+  console.log("IPFS File URL:", fileUrl)
+  return fileUrl;
 }
 
 function getImageFile(fileContent) {
@@ -210,4 +172,36 @@ async function uploadFileToIPFS(file) {
     console.log('Error uploading file: ', error)
   }
   return fileUrl
+}
+
+async function mintNFT(fileURI, toAddress) {
+  //Contract.setProvider(web3.providers);
+
+  if (web3.utils.isAddress(toAddress)) {
+    const nonce = await web3.eth.getTransactionCount(account, 'latest'); //get latest nonce
+    //the transaction
+    const tx = {
+      'from': account.toString(),
+      'to': CONTRACT_ADDRESS,
+      'nonce': nonce.toString(),
+      //da calcolare in qualche modo il gas
+      'gas': '500000',
+      //questo valore l'ho messo a caso ma così funziona
+      'maxPriorityFeePerGas': '1999999987',
+      //bisogna cambiare il nr dell'NFT perchè se è sempre lo stesso non passa la tx
+      'data': NFTContract.methods.mint(toAddress, 125, fileURI).encodeABI()
+    };
+
+    console.log(tx)
+
+    const txHash = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [tx],
+    });
+    console.log("Transaction hash:", txHash)
+
+  } else {
+    alert("Invalid receiver address")
+  }
+
 }
