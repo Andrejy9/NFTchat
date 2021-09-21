@@ -121,9 +121,9 @@ class App extends Component {
         <div id="msgPreview">  -- NFT message preview --  </div>
           <div className="container">
             <div className="clientInfo">
-              Sender Address: {this.state.account}
+              <b>Sender Address:</b> {this.state.account}
               <br></br>
-              Network: {this.state.network}
+              <b>Network:</b> {this.state.network}
             </div>
             <button className="MyButton" onClick={this.onSend}>Send</button>
           </div>
@@ -139,7 +139,7 @@ async function uploadDataToIPFS(imageURL) {
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
   //Upload Metadata
-  const metadata = getMetaData(imgUrl)
+  const metadata = getMetaData(imgUrl, account)
   const metaJson = JSON.stringify(metadata)
   const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
   const fileUrl = await uploadFileToIPFS(metadataFile)
@@ -167,7 +167,6 @@ async function uploadFileToIPFS(file) {
   try {
     const added = await client.add(file)
     fileUrl = `https://ipfs.infura.io/ipfs/${added.path}`
-    console.log("File url:", fileUrl)
   } catch (error) {
     console.log('Error uploading file: ', error)
   }
