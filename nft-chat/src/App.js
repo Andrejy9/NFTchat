@@ -9,7 +9,8 @@ import { NFTchatABI } from "./NFTChatABI";
 import { getMetaData } from "./NFTMetadata";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
-const CONTRACT_ADDRESS = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
+//OLD const CONTRACT_ADDRESS = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
+const CONTRACT_ADDRESS = '0xB7b67863EfDC1a1e556D1E59efee52b5260CCC40'
 const NFTContract = new Contract(NFTchatABI, CONTRACT_ADDRESS)
 let web3;
 let account;
@@ -94,9 +95,8 @@ class App extends Component {
     html2canvas(msgPreview).then(
       function (canvas) {
         canvas.setAttribute("class", "myCanvas");
-        const fileUrl = uploadDataToIPFS(canvas.toDataURL("image/png"))
         const toAddress = document.getElementById('toAddress').value;
-        mintNFT(fileUrl, toAddress)
+        uploadDataToIPFS(canvas.toDataURL("image/png")).then((fileUrl) => {mintNFT(fileUrl, toAddress)})
       })
   }
 
@@ -188,7 +188,7 @@ async function mintNFT(fileURI, toAddress) {
       //questo valore l'ho messo a caso ma così funziona
       'maxPriorityFeePerGas': '1999999987',
       //bisogna cambiare il nr dell'NFT perchè se è sempre lo stesso non passa la tx
-      'data': NFTContract.methods.mint(toAddress, 125, fileURI).encodeABI()
+      'data': NFTContract.methods.mint(toAddress, fileURI).encodeABI()
     };
 
     console.log(tx)
