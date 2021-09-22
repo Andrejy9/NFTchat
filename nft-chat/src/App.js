@@ -93,11 +93,14 @@ class App extends Component {
     const toAddress = document.getElementById('toAddress').value;
     if (web3.utils.isAddress(toAddress)) {
       console.log("sending msg...")
-      const msgPreview = document.getElementById('previewContainer');
-
-      html2canvas(msgPreview).then(
-        function (canvas) {
-          uploadDataToIPFS(canvas.toDataURL("image/png")).then((fileUrl) => { mintNFT(fileUrl, toAddress) })
+      const msgPreview = document.getElementById('msgPreview');
+      adaptTextToImage(msgPreview)
+      html2canvas(msgPreview)
+        .then(canvas => {
+          msgPreview.removeAttribute("class", "nftImg");
+          msgPreview.style.removeProperty("font-size")
+          uploadDataToIPFS(canvas.toDataURL("image/png"))
+            .then((fileUrl) => { mintNFT(fileUrl, toAddress) })
         })
     } else {
       alert("Invalid receiver address")
@@ -141,9 +144,25 @@ class App extends Component {
 export default App
 
 
+function adaptTextToImage(msgPreview) {
+  const length = msgPreview.textContent.length
+  const maxSize = 10
+  const minSize = 2.6
+  let fontSize = 100 / length
+  if (fontSize > maxSize) {
+    fontSize = maxSize
+  } else if (fontSize < minSize) {
+    fontSize = minSize
+  }
+  msgPreview.setAttribute("class", "nftImg")
+  msgPreview.style.fontSize = `${fontSize}vh`
+  console.log("fontSize", fontSize)
+}
+
 async function uploadDataToIPFS(imageURL) {
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
+  console.log("IMAGE IPFS", imgUrl)
   const today = new Date().toLocaleDateString("en-US")
   const metadata = getMetaData(imgUrl, account, today)
   const metaJson = JSON.stringify(metadata)
