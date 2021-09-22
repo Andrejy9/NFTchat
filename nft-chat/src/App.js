@@ -91,12 +91,12 @@ class App extends Component {
 
   async onSend(e) {
     console.log("sending msg...")
-    const msgPreview = document.getElementById('msgPreview');
+    const msgPreview = document.getElementById('previewContainer');
+
     html2canvas(msgPreview).then(
       function (canvas) {
-        canvas.setAttribute("class", "myCanvas");
         const toAddress = document.getElementById('toAddress').value;
-        uploadDataToIPFS(canvas.toDataURL("image/png")).then((fileUrl) => {mintNFT(fileUrl, toAddress)})
+        uploadDataToIPFS(canvas.toDataURL("image/png")).then((fileUrl) => { mintNFT(fileUrl, toAddress) })
       })
   }
 
@@ -118,16 +118,18 @@ class App extends Component {
         </pre>}
         <input id="toAddress" className="ToAddress" maxLength="42" placeholder="Insert the receiver address here..."></input>
         <textarea className="TextArea" id="the_text" maxLength="666" spellCheck="false" placeholder="Write your message here..." onChange={this.onTxtChanged} />
+        <div id="previewContainer">
         <div id="msgPreview">  -- NFT message preview --  </div>
-          <div className="container">
-            <div className="clientInfo">
-              <b>Sender Address:</b> {this.state.account}
-              <br></br>
-              <b>Network:</b> {this.state.network}
-            </div>
-            <button className="MyButton" onClick={this.onSend}>Send</button>
-          </div>
         </div>
+        <div className="container">
+          <div className="clientInfo">
+            <b>Sender Address:</b> {this.state.account}
+            <br></br>
+            <b>Network:</b> {this.state.network}
+          </div>
+          <button className="MyButton" onClick={this.onSend}>Send</button>
+        </div>
+      </div>
     )
   }
 }

@@ -52,26 +52,33 @@
     max-width: 900px;
 }
 
-#msgPreview {
+#previewContainer {
     margin-left: auto;
     margin-right: auto;
     margin-top: 2%;
+    padding: 1%;
+    background: black;
+    max-width: 900px;
+    width: 82%;
+    height: 30%;
+    vertical-align: middle;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#msgPreview {
     text-align: left;
     background: black;
     color: #00fd00;
-    width: 80%;
     font-size: 1.6vh;
     font-family: monospace;
-    padding: 1%;
-    max-width: 900px;
-}
-
-.myCanvas {
-    display: contents;
 }
 
 .container {
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2%;
     width: 82%;
     height: 6vh;
     max-width: 933px;
