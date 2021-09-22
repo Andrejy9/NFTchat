@@ -113,14 +113,14 @@ class App extends Component {
       <div className="App">
         {<pre className="Title">
           <h1 >
-            ███    ██ ███████ ████████      ██             ██<br></br>
-            ████   ██ ██         ██         ██           ██████<br></br>
-            ██ ██  ██ █████      ██   █████ ██████ █████   ██  <br></br>
-            ██  ██ ██ ██         ██  ██     ██  ██ ██  ██  ██  <br></br>
-            ██   ████ ██         ██   █████ ██  ██ ███ ███ ████<br></br>
+            ███    ██ ███████ ████████     ██             ██<br></br>
+            ████   ██ ██         ██        ██           ██████<br></br>
+            ██ ██  ██ █████      ██  █████ ██████ █████   ██  <br></br>
+            ██  ██ ██ ██         ██ ██     ██  ██ ██  ██  ██  <br></br>
+            ██   ████ ██         ██  █████ ██  ██ ███ ███ ████<br></br>
           </h1>
         </pre>}
-        <input id="toAddress" className="ToAddress" maxLength="42" placeholder="Paste the receiver address here..."></input>
+        <input id="toAddress" className="ToAddress" maxLength="42" spellCheck="false" placeholder="Paste the receiver address here..."></input>
         <textarea className="TextArea" id="the_text" maxLength="666" spellCheck="false" placeholder="Write your message here..." onChange={this.onTxtChanged} />
         <div id="previewContainer">
           <div id="msgPreview">  -- NFT message preview --  </div>
@@ -144,7 +144,8 @@ export default App
 async function uploadDataToIPFS(imageURL) {
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
-  const metadata = getMetaData(imgUrl, account, Date.now())
+  const today = new Date().toLocaleDateString("en-US")
+  const metadata = getMetaData(imgUrl, account, today)
   const metaJson = JSON.stringify(metadata)
   const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
   const fileUrl = await uploadFileToIPFS(metadataFile)
