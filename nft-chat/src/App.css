@@ -14,12 +14,11 @@
 }
 
 .Title {
-    padding: 2%;
     margin: auto;
     text-align: left;
     color: #00fd00;
     font-family: monospace;
-    font-size: 1vw;
+    font-size: 0.9vw;
 }
 
 .ToAddress {
@@ -48,7 +47,7 @@
     width: 80%;
     height: 30%;
     font-size: 1.6vh;
-    font-family: monospace;
+    font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
     max-width: 900px;
 }
 
@@ -71,9 +70,20 @@
     text-align: left;
     background: black;
     color: #00fd00;
-    font-size: 1.6vh;
+    font-size: 1.6vw;
     text-shadow: 0 0 5px #C8C8C8;
     font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+}
+
+.nftImg {
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1%;
+    width: 600px;
+    height: 600px;
+    transform: translate(-2999px, 0px);
 }
 
 .container {
