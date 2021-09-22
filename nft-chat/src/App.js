@@ -20,7 +20,8 @@ class App extends Component {
     this.state = {
       account: '',
       show: false,
-      network: ''
+      network: '',
+      MetamaskInstalled: false
     }
   }
 
@@ -29,6 +30,11 @@ class App extends Component {
     await this.loadWeb3()
     if (this.state.show === false) {
       await this.loadBlockchainData()
+          // detect Network account change
+    window.ethereum.on('chainChanged', function(networkId){
+     console.log('networkChanged',networkId)
+     window.location.reload();
+    });
     }
   }
 
@@ -38,7 +44,12 @@ class App extends Component {
     const accounts = await web3.eth.getAccounts()
     account = accounts[0]
     this.setState({ account: account })
-    console.log("Current Account:", account)
+    this.detectNetwork(web3)
+  }
+
+  //detect the Network 
+  async detectNetwork(web3) {
+
     web3.eth.net.getId().then(netId => {
       switch (netId) {
         case 1:
@@ -56,11 +67,17 @@ class App extends Component {
           console.log('This is the Mumbai testnet.')
           this.setState({ network: 'Mumbai' })
           break
+          case 56:
+          console.log('This is Binance Smart Chain')
+          this.setState({ network: 'BSC' })
+          break
         default:
           console.log('This is an unknown network.')
-          console.log(netId)
+          this.setState({ network: 'Unsupported' })
+          window.alert('Unsupported Network')
       }
     })
+
   }
 
   async loadWeb3() {
@@ -68,12 +85,15 @@ class App extends Component {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum)
       await window.ethereum.enable()
+      
     }
     else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider)
+      this.setState({ MetamaskInstalled: true })
     }
     else {
       window.alert('Non-Ethereum browser detected. You should consider trying MetaMask!')
+      this.setState({ show: true })
     }
   }
 
