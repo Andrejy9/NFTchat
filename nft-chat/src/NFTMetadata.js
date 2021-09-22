@@ -1,4 +1,4 @@
-export function getMetaData(imgUrl, senderAdress) {
+export function getMetaData(imgUrl, senderAdress, birthday) {
     return {
         "name": "nftchat.xyz",
         "description": `You received this message from: ${senderAdress}`,
@@ -41,7 +41,7 @@ export function getMetaData(imgUrl, senderAdress) {
             {
                 "display_type": "date",
                 "trait_type": "birthday",
-                "value": 8566360800 //Thing about this
+                "value": `${birthday}`
             },
             {
                 "value": "Simple property"
