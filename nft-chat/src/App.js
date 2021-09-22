@@ -30,11 +30,11 @@ class App extends Component {
     await this.loadWeb3()
     if (this.state.show === false) {
       await this.loadBlockchainData()
-          // detect Network account change
-    window.ethereum.on('chainChanged', function(networkId){
-     console.log('networkChanged',networkId)
-     window.location.reload();
-    });
+      // detect Network account change
+      window.ethereum.on('chainChanged', function (networkId) {
+        console.log('networkChanged', networkId)
+        window.location.reload();
+      });
     }
   }
 
@@ -67,7 +67,7 @@ class App extends Component {
           console.log('This is the Mumbai testnet.')
           this.setState({ network: 'Mumbai' })
           break
-          case 56:
+        case 56:
           console.log('This is Binance Smart Chain')
           this.setState({ network: 'BSC' })
           break
@@ -85,7 +85,7 @@ class App extends Component {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum)
       await window.ethereum.enable()
-      
+
     }
     else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider)
