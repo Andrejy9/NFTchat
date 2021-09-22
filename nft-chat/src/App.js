@@ -90,14 +90,18 @@ class App extends Component {
   }
 
   async onSend(e) {
-    console.log("sending msg...")
-    const msgPreview = document.getElementById('previewContainer');
+    const toAddress = document.getElementById('toAddress').value;
+    if (web3.utils.isAddress(toAddress)) {
+      console.log("sending msg...")
+      const msgPreview = document.getElementById('previewContainer');
 
-    html2canvas(msgPreview).then(
-      function (canvas) {
-        const toAddress = document.getElementById('toAddress').value;
-        uploadDataToIPFS(canvas.toDataURL("image/png")).then((fileUrl) => { mintNFT(fileUrl, toAddress) })
-      })
+      html2canvas(msgPreview).then(
+        function (canvas) {
+          uploadDataToIPFS(canvas.toDataURL("image/png")).then((fileUrl) => { mintNFT(fileUrl, toAddress) })
+        })
+    } else {
+      alert("Invalid receiver address")
+    }
   }
 
   async App() {
@@ -116,10 +120,10 @@ class App extends Component {
             ██   ████ ██         ██   █████ ██  ██ ███ ███ ████<br></br>
           </h1>
         </pre>}
-        <input id="toAddress" className="ToAddress" maxLength="42" placeholder="Insert the receiver address here..."></input>
+        <input id="toAddress" className="ToAddress" maxLength="42" placeholder="Paste the receiver address here..."></input>
         <textarea className="TextArea" id="the_text" maxLength="666" spellCheck="false" placeholder="Write your message here..." onChange={this.onTxtChanged} />
         <div id="previewContainer">
-        <div id="msgPreview">  -- NFT message preview --  </div>
+          <div id="msgPreview">  -- NFT message preview --  </div>
         </div>
         <div className="container">
           <div className="clientInfo">
@@ -140,8 +144,7 @@ export default App
 async function uploadDataToIPFS(imageURL) {
   const imgFile = getImageFile(imageURL)
   const imgUrl = await uploadFileToIPFS(imgFile)
-  //Upload Metadata
-  const metadata = getMetaData(imgUrl, account)
+  const metadata = getMetaData(imgUrl, account, Date.now())
   const metaJson = JSON.stringify(metadata)
   const metadataFile = new File([metaJson], 'metadata.json', { type: 'text/plain;charset=UTF-8' })
   const fileUrl = await uploadFileToIPFS(metadataFile)
@@ -176,33 +179,24 @@ async function uploadFileToIPFS(file) {
 }
 
 async function mintNFT(fileURI, toAddress) {
-  //Contract.setProvider(web3.providers);
+  const nonce = await web3.eth.getTransactionCount(account, 'latest');
+  //the transaction
+  const tx = {
+    'from': account.toString(),
+    'to': CONTRACT_ADDRESS,
+    'nonce': nonce.toString(),
+    //TODO define gas for different blockchains
+    'gas': '200000',
+    //TODO define maxPriorityFeePerGas
+    'maxPriorityFeePerGas': '2000000',
+    'data': NFTContract.methods.mint(toAddress, fileURI).encodeABI()
+  };
 
-  if (web3.utils.isAddress(toAddress)) {
-    const nonce = await web3.eth.getTransactionCount(account, 'latest'); //get latest nonce
-    //the transaction
-    const tx = {
-      'from': account.toString(),
-      'to': CONTRACT_ADDRESS,
-      'nonce': nonce.toString(),
-      //da calcolare in qualche modo il gas
-      'gas': '500000',
-      //questo valore l'ho messo a caso ma così funziona
-      'maxPriorityFeePerGas': '1999999987',
-      //bisogna cambiare il nr dell'NFT perchè se è sempre lo stesso non passa la tx
-      'data': NFTContract.methods.mint(toAddress, fileURI).encodeABI()
-    };
+  console.log(tx)
 
-    console.log(tx)
-
-    const txHash = await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [tx],
-    });
-    console.log("Transaction hash:", txHash)
-
-  } else {
-    alert("Invalid receiver address")
-  }
-
+  const txHash = await window.ethereum.request({
+    method: 'eth_sendTransaction',
+    params: [tx],
+  });
+  console.log("Transaction hash:", txHash)
 }
