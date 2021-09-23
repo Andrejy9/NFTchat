@@ -83,6 +83,7 @@
     padding: 1%;
     width: 600px;
     height: 600px;
+    text-shadow: 0 0 5px #C8C8C8;
     transform: translate(-2999px, 0px);
 }
 

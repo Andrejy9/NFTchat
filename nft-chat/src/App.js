@@ -14,6 +14,7 @@ const CONTRACT_ADDRESS = '0xB7b67863EfDC1a1e556D1E59efee52b5260CCC40'
 const NFTContract = new Contract(NFTchatABI, CONTRACT_ADDRESS)
 let web3;
 let account;
+let lastIndexNewLine;
 class App extends Component {
   constructor(props) {
     super(props)
@@ -98,12 +99,8 @@ class App extends Component {
   }
 
   async onTxtChanged(e) {
-    let theText = e.target.value;
-    const htmlText = theText
-      .replace(/\t/g, '    ')
-      .replace(/ {2}/g, '&nbsp; ')
-      .replace(/ {2}/g, ' &nbsp;')
-      .replace(/\n\r?/g, '<br>');
+    const textArea = e.target;
+    const htmlText = applyTextConstraints(textArea)
 
     let msgPreview = document.getElementById('msgPreview');
     msgPreview.innerHTML = htmlText;
@@ -163,6 +160,28 @@ class App extends Component {
 
 export default App
 
+
+function applyTextConstraints(textArea) {
+  let theText = textArea.value;
+  const numberOfLines = (theText.match(/\n\r?/g) || []).length + 1
+
+  if (numberOfLines >= 10) {
+    if (numberOfLines < 11) {
+      lastIndexNewLine = theText.lastIndexOf('\n');
+    }
+    theText = theText.slice(0, lastIndexNewLine)
+    textArea.value = theText
+  }
+  return plainTxtToHtml(theText);
+}
+
+function plainTxtToHtml(theText) {
+  return theText
+    .replace(/\t/g, '    ')
+    .replace(/ {2}/g, '&nbsp; ')
+    .replace(/ {2}/g, ' &nbsp;')
+    .replace(/\n\r?/g, '<br>')
+}
 
 function adaptTextToImage(msgPreview) {
   const length = msgPreview.textContent.length
