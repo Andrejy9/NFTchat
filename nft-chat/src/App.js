@@ -10,7 +10,8 @@ import { getMetaData } from "./NFTMetadata";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
 //OLD const CONTRACT_ADDRESS = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
-const CONTRACT_ADDRESS = '0xB7b67863EfDC1a1e556D1E59efee52b5260CCC40'
+const CONTRACT_ADDRESS = '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823'
+const MaticFee = 0.005
 const NFTContract = new Contract(NFTchatABI, CONTRACT_ADDRESS)
 let web3;
 let account;
@@ -240,6 +241,9 @@ async function uploadFileToIPFS(file) {
 async function mintNFT(fileURI, toAddress) {
   const nonce = await web3.eth.getTransactionCount(account, 'latest');
   //the transaction
+  const amount = web3.utils.toWei(MaticFee.toString(), 'ether');
+  const value = web3.utils.toHex(amount);
+
   const tx = {
     'from': account.toString(),
     'to': CONTRACT_ADDRESS,
@@ -248,14 +252,21 @@ async function mintNFT(fileURI, toAddress) {
     'gas': '200000',
     //TODO define maxPriorityFeePerGas
     'maxPriorityFeePerGas': '2000000',
-    'data': NFTContract.methods.mint(toAddress, fileURI).encodeABI()
+    'data': NFTContract.methods.mint(toAddress, fileURI).encodeABI(),
+    // da gestire con BigNumber
+    'value': value.toString()
   };
 
   console.log(tx)
 
-  const txHash = await window.ethereum.request({
+  const txHash = await window.ethereum
+  .request({
     method: 'eth_sendTransaction',
     params: [tx],
+  })
+  .then((result) => {
+    console.log("Transaction hash:", txHash)
+  })
+  .catch((error) => {
   });
-  console.log("Transaction hash:", txHash)
 }
