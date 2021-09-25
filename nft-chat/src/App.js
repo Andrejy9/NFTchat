@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas'
 import Web3 from 'web3'
 import Contract from 'web3-eth-contract'
 import React, { Component } from 'react'
+import NFTchatLogo from './NFTchatLogo'
 import { NFTchatABI } from "./NFTChatABI";
 import { getMetaData } from "./NFTMetadata";
 
@@ -125,15 +126,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        {<pre className="Title">
-          <h1 >
-            ███    ██ ███████ ████████     ██             ██<br></br>
-            ████   ██ ██         ██        ██           ██████<br></br>
-            ██ ██  ██ █████      ██  █████ ██████ █████   ██  <br></br>
-            ██  ██ ██ ██         ██ ██     ██  ██ ██  ██  ██  <br></br>
-            ██   ████ ██         ██  █████ ██  ██ ███ ███ ████<br></br>
-          </h1>
-        </pre>}
+        <NFTchatLogo></NFTchatLogo>
         <input id="toAddress" className="ToAddress" maxLength="42" spellCheck="false" placeholder="Paste the receiver address here..."></input>
         <textarea className="TextArea" id="the_text" maxLength="666" spellCheck="false" placeholder="Write your message here..." onChange={this.onTxtChanged} />
         <div id="previewContainer">
