@@ -9,13 +9,19 @@ import { NFTchatABI } from "./NFTChatABI";
 import { getMetaData } from "./NFTMetadata";
 
 const client = create('https://ipfs.infura.io:5001/api/v0')
-//OLD const CONTRACT_ADDRESS = '0xf1bCaD175dFac737daC5fC7176C516D91126f0Cb'
-const CONTRACT_ADDRESS = '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823'
-const MaticFee = 0.005
-const NFTContract = new Contract(NFTchatABI, CONTRACT_ADDRESS)
 let web3;
 let account;
 let lastIndexNewLine;
+let contractAdress;
+let mintFee;
+
+const supportedNetworks = new Map();
+supportedNetworks.set(1,     {"name": 'Mainnet', "contract": '', "fee": "" });
+supportedNetworks.set(137,   {"name":'Polygon', "contract": '', "fee": '0.099' });
+supportedNetworks.set(80001, {"name":'Mumbai', "contract": '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823', "fee": '0.099' });
+supportedNetworks.set(56,    {"name": 'BSC', "contract": '', "fee": '0.00033' });
+supportedNetworks.set(97,    {"name": 'BSC Tesnet', "contract": '0x7EF2e0048f5bAeDe046f6BF797943daF4ED8CB47', "fee": '0.00033' });
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -51,35 +57,22 @@ class App extends Component {
 
   //detect the Network 
   async detectNetwork(web3) {
-
     web3.eth.net.getId().then(netId => {
-      switch (netId) {
-        case 1:
-          console.log('This is mainnet')
-          this.setState({ network: 'Mainnet' })
-          break
-        case 2:
-          console.log('This is the deprecated Morden test network.')
-          break
-        case 137:
-          console.log('This is the Polygon network.')
-          this.setState({ network: 'Polygon' })
-          break
-        case 80001:
-          console.log('This is the Mumbai testnet.')
-          this.setState({ network: 'Mumbai' })
-          break
-        case 56:
-          console.log('This is Binance Smart Chain')
-          this.setState({ network: 'BSC' })
-          break
-        default:
-          console.log('This is an unknown network.')
-          this.setState({ network: 'Unsupported' })
+        const currentNetwork = supportedNetworks.get(netId);
+        if(!currentNetwork){
+          console.error('Unsupported network.')
           window.alert('Unsupported Network')
-      }
-    })
+        }
+        this.setState({ network: currentNetwork.name })
+        console.log(`Connected to ${currentNetwork.name} Network`)
 
+        contractAdress = currentNetwork.contract;
+        console.log("contract address: ", contractAdress);
+
+        mintFee= currentNetwork.fee;
+        console.log("Mint fee: ", mintFee);
+      }
+    )
   }
 
   async loadWeb3() {
@@ -241,12 +234,13 @@ async function uploadFileToIPFS(file) {
 async function mintNFT(fileURI, toAddress) {
   const nonce = await web3.eth.getTransactionCount(account, 'latest');
   //the transaction
-  const amount = web3.utils.toWei(MaticFee.toString(), 'ether');
+  const amount = web3.utils.toWei(mintFee, 'ether');
   const value = web3.utils.toHex(amount);
+  const NFTContract = new Contract(NFTchatABI, contractAdress)
 
   const tx = {
     'from': account.toString(),
-    'to': CONTRACT_ADDRESS,
+    'to': contractAdress,
     'nonce': nonce.toString(),
     //TODO define gas for different blockchains
     'gas': '200000',
@@ -266,7 +260,9 @@ async function mintNFT(fileURI, toAddress) {
   })
   .then((result) => {
     console.log("Transaction hash:", txHash)
+    console.log("Transaction Result:", result)
   })
   .catch((error) => {
+    console.error(error)
   });
 }
