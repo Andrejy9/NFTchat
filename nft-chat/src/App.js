@@ -17,11 +17,15 @@ let contractAdress;
 let mintFee;
 
 const supportedNetworks = new Map();
-supportedNetworks.set(1,     {"name": 'Mainnet', "contract": '', "fee": "" });
-supportedNetworks.set(137,   {"name":'Polygon', "contract": '', "fee": '0.099' });
-supportedNetworks.set(80001, {"name":'Mumbai', "contract": '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823', "fee": '0.099' });
-supportedNetworks.set(56,    {"name": 'BSC', "contract": '', "fee": '0.00033' });
-supportedNetworks.set(97,    {"name": 'BSC Tesnet', "contract": '0x7EF2e0048f5bAeDe046f6BF797943daF4ED8CB47', "fee": '0.00033' });
+//MAIN NETS
+supportedNetworks.set(1, { "name": 'Ethereum Mainnet', "contract": '', "fee": "0.000044" });
+supportedNetworks.set(56, { "name": 'Binance Smart Chain', "contract": '', "fee": '0.00033' });
+//TEST NETS
+supportedNetworks.set(3, { "name": 'Ropsten Test Network', "contract": '0xd4998884A7e335d996F17fFD6e17199a28BfcD82', "fee": "0.000044" });//GAS  2652351  //TX gas 80000000
+supportedNetworks.set(4, { "name": 'Rinkeby Test Network', "contract": '', "fee": "0.000044" });
+supportedNetworks.set(137, { "name": 'Polygon', "contract": '', "fee": '0.099' });
+supportedNetworks.set(80001, { "name": 'Mumbai', "contract": '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823', "fee": '0.099' });
+supportedNetworks.set(97, { "name": 'BSC Tesnet', "contract": '0x9BfFF2632373fC47EFEb69d6eEB7cF651f22A0bF', "fee": '0.00033' });
 
 class App extends Component {
   constructor(props) {
@@ -59,20 +63,21 @@ class App extends Component {
   //detect the Network 
   async detectNetwork(web3) {
     web3.eth.net.getId().then(netId => {
-        const currentNetwork = supportedNetworks.get(netId);
-        if(!currentNetwork){
-          console.error('Unsupported network.')
-          window.alert('Unsupported Network')
-        }
+      const currentNetwork = supportedNetworks.get(netId);
+      if (!currentNetwork || !currentNetwork.contract) {
+        console.error('Unsupported network.')
+        window.alert('Unsupported Network, please change the blockchain network on your wallet')
+      } else {
         this.setState({ network: currentNetwork.name })
         console.log(`Connected to ${currentNetwork.name} Network`)
 
         contractAdress = currentNetwork.contract;
         console.log("contract address: ", contractAdress);
 
-        mintFee= currentNetwork.fee;
+        mintFee = currentNetwork.fee;
         console.log("Mint fee: ", mintFee);
       }
+    }
     )
   }
 
@@ -81,7 +86,6 @@ class App extends Component {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum)
       await window.ethereum.enable()
-
     }
     else if (window.web3) {
       window.web3 = new Web3(window.web3.currentProvider)
@@ -231,31 +235,35 @@ async function mintNFT(fileURI, toAddress) {
   const value = web3.utils.toHex(amount);
   const NFTContract = new Contract(NFTchatABI, contractAdress)
 
+
+  //GAS  2652351  //TX gas 80000000
+
   const tx = {
     'from': account.toString(),
     'to': contractAdress,
     'nonce': nonce.toString(),
     //TODO define gas for different blockchains
-    'gas': '200000',
+    //'gas': '200000', //MATIC
+    'gas': '300000', //ETH
     //TODO define maxPriorityFeePerGas
-    'maxPriorityFeePerGas': '2000000',
+    'maxPriorityFeePerGas': '5000000',
     'data': NFTContract.methods.mint(toAddress, fileURI).encodeABI(),
     // da gestire con BigNumber
-    'value': value.toString()
+    'value': value
   };
 
   console.log(tx)
 
   const txHash = await window.ethereum
-  .request({
-    method: 'eth_sendTransaction',
-    params: [tx],
-  })
-  .then((result) => {
-    console.log("Transaction hash:", txHash)
-    console.log("Transaction Result:", result)
-  })
-  .catch((error) => {
-    console.error(error)
-  });
+    .request({
+      method: 'eth_sendTransaction',
+      params: [tx],
+    })
+    .then((result) => {
+      console.log("Transaction hash:", txHash)
+      console.log("Transaction Result:", result)
+    })
+    .catch((error) => {
+      console.error(error)
+    });
 }
