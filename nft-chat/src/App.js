@@ -24,8 +24,8 @@ supportedNetworks.set(56, { "name": 'Binance Smart Chain', "contract": '', "fee"
 supportedNetworks.set(3, { "name": 'Ropsten Test Network', "contract": '0xd4998884A7e335d996F17fFD6e17199a28BfcD82', "fee": "0.000044" });//GAS  2652351  //TX gas 80000000
 supportedNetworks.set(4, { "name": 'Rinkeby Test Network', "contract": '', "fee": "0.000044" });
 supportedNetworks.set(137, { "name": 'Polygon', "contract": '', "fee": '0.099' });
-supportedNetworks.set(80001, { "name": 'Mumbai', "contract": '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823', "fee": '0.099' });
-supportedNetworks.set(97, { "name": 'BSC Tesnet', "contract": '0x9BfFF2632373fC47EFEb69d6eEB7cF651f22A0bF', "fee": '0.00033' });
+supportedNetworks.set(80001, { "name": 'Mumbai', "contract": '0xdDe92Ce538484A19A40f26d42E7C6d6c39e99823', "fee": '0.00099' });
+supportedNetworks.set(97, { "name": 'BSC Tesnet', "contract": '0x9BfFF2632373fC47EFEb69d6eEB7cF651f22A0bF', "fee": '0.000033' });
 
 class App extends Component {
   constructor(props) {
