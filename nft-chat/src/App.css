@@ -18,7 +18,7 @@
     text-align: left;
     color: #00fd00;
     font-family: monospace;
-    font-size: 0.9vw;
+    font-size: 1.2vmin;
 }
 
 .ToAddress {
@@ -46,7 +46,7 @@
     resize: none;
     width: 80%;
     height: 30%;
-    font-size: 1.6vh;
+    font-size: 1.3vh;
     font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
     max-width: 900px;
 }
@@ -58,7 +58,7 @@
     padding: 1%;
     background: black;
     max-width: 900px;
-    width: 82%;
+    width: 81%;
     height: 30%;
     vertical-align: middle;
     display: flex;
